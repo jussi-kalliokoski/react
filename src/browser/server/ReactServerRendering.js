@@ -25,21 +25,27 @@ var invariant = require('invariant');
  * @param {ReactElement} element
  * @return {string} the HTML markup
  */
-function renderToString(element) {
+function renderToString(element, writeFn) {
   invariant(
     ReactElement.isValidElement(element),
     'renderToString(): You must pass a valid ReactElement.'
   );
 
+  var markup = '';
+
+  writeFn = writeFn || function (string) {
+      markup += string;
+  };
+
   var transaction;
   try {
     var id = ReactInstanceHandles.createReactRootID();
     transaction = ReactServerRenderingTransaction.getPooled(false);
+    transaction.write = writeFn;
 
     return transaction.perform(function() {
       var componentInstance = instantiateReactComponent(element, null);
-      var markup =
-        componentInstance.mountComponent(id, transaction, emptyObject);
+      componentInstance.mountComponent(id, transaction, emptyObject);
       return ReactMarkupChecksum.addChecksumToMarkup(markup);
     }, null);
   } finally {
@@ -52,20 +58,28 @@ function renderToString(element) {
  * @return {string} the HTML markup, without the extra React ID and checksum
  * (for generating static pages)
  */
-function renderToStaticMarkup(element) {
+function renderToStaticMarkup(element, writeFn) {
   invariant(
     ReactElement.isValidElement(element),
     'renderToStaticMarkup(): You must pass a valid ReactElement.'
   );
 
+  var markup = '';
+
+  writeFn = writeFn || function (string) {
+      markup += string;
+  };
+
   var transaction;
   try {
     var id = ReactInstanceHandles.createReactRootID();
-    transaction = ReactServerRenderingTransaction.getPooled(true);
+    transaction = ReactServerRenderingTransaction.getPooled(true, writeFn);
+    transaction.write = writeFn;
 
     return transaction.perform(function() {
       var componentInstance = instantiateReactComponent(element, null);
-      return componentInstance.mountComponent(id, transaction, emptyObject);
+      componentInstance.mountComponent(id, transaction, emptyObject);
+      return markup;
     }, null);
   } finally {
     ReactServerRenderingTransaction.release(transaction);

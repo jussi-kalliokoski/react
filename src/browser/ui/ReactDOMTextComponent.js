@@ -73,10 +73,10 @@ assign(ReactDOMTextComponent.prototype, {
       // Normally we'd wrap this in a `span` for the reasons stated above, but
       // since this is a situation where React won't take over (static pages),
       // we can simply return the text as it is.
-      return escapedText;
+      transaction.write(escapedText);
     }
 
-    return (
+    transaction.write(
       '<span ' + DOMPropertyOperations.createMarkupForID(rootID) + '>' +
         escapedText +
       '</span>'

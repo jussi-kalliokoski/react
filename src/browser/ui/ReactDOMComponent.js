@@ -193,12 +193,12 @@ ReactDOMComponent.Mixin = {
   mountComponent: function(rootID, transaction, context) {
     this._rootNodeID = rootID;
     assertValidProps(this._currentElement.props);
-    var closeTag = omittedCloseTags[this._tag] ? '' : '</' + this._tag + '>';
-    return (
-      this._createOpenTagMarkupAndPutListeners(transaction) +
-      this._createContentMarkup(transaction, context) +
-      closeTag
-    );
+    transaction.write(this._createOpenTagMarkupAndPutListeners(transaction));
+    transaction.write(this._createContentMarkup(transaction, context));
+    if (!omittedCloseTags[this._tag]) {
+        var closeTag = '</' + this._tag + '>';
+        transaction.write(closeTag);
+    }
   },
 
   /**

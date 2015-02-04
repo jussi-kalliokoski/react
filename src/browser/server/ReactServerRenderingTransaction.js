@@ -57,7 +57,7 @@ var TRANSACTION_WRAPPERS = [
  * @class ReactServerRenderingTransaction
  * @param {boolean} renderToStaticMarkup
  */
-function ReactServerRenderingTransaction(renderToStaticMarkup) {
+function ReactServerRenderingTransaction(renderToStaticMarkup, writeFn) {
   this.reinitializeTransaction();
   this.renderToStaticMarkup = renderToStaticMarkup;
   this.reactMountReady = CallbackQueue.getPooled(null);
